@@ -6,147 +6,147 @@
 var jpdbBaseURL = "http://api.login2explore.com:5577";
 var jpdbIRL = "/api/irl";
 var jpdbIML = "/api/iml";
-var empDBName = "EMP-DB";
-var empRelationName = "EmpData";
+var stuDBName = "SCHOOL-DB ";
+var stuRelationName = "STUDENT-TABLE";
 var connToken = "90931241|-31949329218216400|90960916";
 
-$("#empid").focus();
+$("#rollno").focus();
 
-function SaveRecNo2LS(jsonObj) {
+function saveRecNo(jsonObj) {
     var lvData = JSON.parse(jsonObj.data);
     localStorage.setItem("recno", lvData.rec_no);
 }
 
-function getEmpIdAsJsonObj() {
-    var empid = $("#empid").val();
+function getStuIdAsJsonObj() {
+    var rollno = $("#rollno").val();
     var jsonStr = {
-        id: empid
+        id: rollno
     };
     return JSON.stringify(jsonStr);
 }
 
 function fillData(jsonObj) {
-    SaveRecNo2LS(jsonObj);
-    var data = JSON.parse(jsonObj.data).record;
-    $("#empname").val(data.name);
-    $("#empsal").val(data.salary);
-    $("#hra").val(data.hra);
-    $("#empda").val(data.da);
-    $("#deduct").val(data.deduction);
+    saveRecNo(jsonObj);
+    var record  = JSON.parse(jsonObj.data).record;
+    $("#stuname").val(record.name);
+    $("#class").val(record.class);
+    $("#dob").val(record.dob);
+    $("#add").val(record.add);
+    $("#enrolldate").val(record.enrolldate);
 }
 
 function resetForm() {
-    $("#empid").val('');
-    $("#empname").val('');
-    $("#empsal").val('');
-    $("#hra").val('');
-    $("#da").val('');
-    $("#deduct").val('');
-    $("#empid").prop("disabled", false);
+    $("#rollno").val("");
+    $("#stuname").val("");
+    $("#class").val("");
+    $("#dob").val("");
+    $("#add").val("");
+    $("#enrolldate").val("");
+    $("#rollno").prop("disabled", false);
     $("#save").prop("disabled", true);
-    $("#change").prop("disabled", true);
+    $("#update").prop("disabled", true);
     $("#reset").prop("disabled", true);
-    $("#empid").focus();
+    $("#rollno").focus();
 }
 
 function validateData() {
 
-    var empid, empname, empsal, hra, da, deduct;
-    empid = $("#empid").val();
-    empname = $("#empname").val();
-    empsal = $("#empsal").val();
-    hra = $("#hra").val();
-    da = $("#da").val();
-    deduct = $("#deduct").val();
+    var rollno, stuname, stuclass, dob, add, enrolldate;
+    rollno = $("#rollno").val();
+    stuname = $("#stuname").val();
+    stuclass = $("#class").val();
+    dob = $("#dob").val();
+    add = $("#add").val();
+    enrolldate = $("#enrolldate").val();
 
-    if (empid === '') {
-        alert("Employee ID missing");
-        $("#empid").focus();
+    if (rollno === '') {
+        alert("Student Roll no. missing");
+        $("#rollno").focus();
         return "";
     }
-    if (empname === "") {
-        alert("Employee Name missing");
-        $("#empname").focus();
+    if (stuname === "") {
+        alert("Student Name Missing");
+        $("#stuname").focus();
         return "";
     }
-    if (empsal === "") {
-        alert("Employee Salary missing");
-        $("#empsal").focus();
+    if (stuclass === "") {
+        alert("Class missing");
+        $("#class").focus();
         return "";
     }
-    if (hra === "") {
-        alert("HRA missing");
-        $("#hra").focus();
+    if (dob === "") {
+        alert("Date of Birth Missing");
+        $("#dob").focus();
         return "";
     }
-    if (da === "") {
+    if (add === "") {
         alert("DA missing");
-        $("#da").focus();
+        $("#add").focus();
         return "";
     }
-    if (deduct === "") {
-        alert("Deduction missing");
-        $("#deduct").focus();
+    if (enrolldate === "") {
+        alert("Enrollment Date Missing");
+        $("#enrolldate").focus();
         return "";
     }
 
-    var jsonStrobj = {
+    var jsonStrObj = {
 
-        id: empid,
-        name: empname,
-        salary: empsal,
-        hra: hra,
-        da: da,
-        deduction: deduct
+        id: rollno,
+        name: stuname,
+        class: stuclass,
+        dob: dob,
+        add: add,
+        enrolldate: enrolldate
     };
-    return JSON.stringify(jsonStrobj);
+    return JSON.stringify(jsonStrObj);
 }
 
-function getEmp() {
-    var empIdJsonObj = getEmpIdAsJsonObj();
-            var getRequest = createGET_BY_KEYRequest(connToken, empDBName, empRelationName, empIdJsonObj);
+function getStu() {
+    var empIdJsonObj = getStuIdAsJsonObj();
+            var getRequest = createGET_BY_KEYRequest(connToken, stuDBName, stuRelationName, empIdJsonObj);
     jQuery.ajaxSetup({async: false});
     var resJsonObj = executeCommandAtGivenBaseUrl(getRequest, jpdbBaseURL, jpdbIRL);
     jQuery.ajaxSetup({async: true});
     if (resJsonObj.status === 400) {
         $("#save").prop("disabled", false);
         $("#reset").prop("disabled", false);
-        $("#empname").focus();
+        $("#stuname").focus();
 
     } else if (resJsonObj.status === 200) {
 
-        $("empid").prop("diabled", true);
+        $("#rollno").prop("diabled", true);
         fillData(resJsonObj);
 
-        $("change").prop("disabled", false);
+        $("#update").prop("disabled", false);
         $("#reset").prop("disabled", false);
-        $("empname").focus();
+        $("#stuname").focus();
     }
 }
 
 function saveData() {
     var jsonStrObj = validateData();
-    if (jsonStrObj === '') {
+    if (jsonStrObj === "") {
         return "";
     }
 
-    var putRequest = createPUTRequest(connToken, jsonStrObj, empDBName, empRelationName);
+    var putRequest = createPUTRequest(connToken, jsonStrObj, stuDBName, stuRelationName);
     jQuery.ajaxSetup({async: false});
     var resJsonObj = executeCommandAtGivenBaseUrl(putRequest, jpdbBaseURL, jpdbIML);
     jQuery.ajaxSetup({async: true});
     resetForm();
-    $("#empid").focus();
+    $("#rollno").focus();
 }
 
-function changeData() {
-    $("#change").prop("disabled", true);
+function updateData() {
+    $("#update").prop("disabled", true);
     jsonChg = validateData();
-    var updateRequest = createUPDATERecordRequest(connToken, jsonChg, empDBName, empRelationName, localStorage.getItem(""));
+    var updateRequest = createUPDATERecordRequest(connToken, jsonChg, stuDBName, stuRelationName, localStorage.getItem("recno"));
     jQuery.ajaxSetup({async: false});
     var resJsonObj = executeCommandAtGivenBaseURL(updateRequest, jpdbBaseURL, jpdbIML);
     jQuery.ajaxSetup({async: true});
     console.log(resJsonObj);
     resetForm();
 
-    $("#empid").focus();
+    $("#rollno").focus();
 }
